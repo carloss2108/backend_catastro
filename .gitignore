@@ -1,0 +1,42 @@
+========================================================================
+ARCHIVOS IGNORADOS POR GIT
+========================================================================
+
+1. Dependencias de Node (¡MUY PESADO, NUNCA SE SUBE!)
+
+node_modules/
+
+2. Variables de Entorno (¡CONTIENE TUS CONTRASEÑAS!)
+
+.env
+.env.*
+*.env
+
+3. Logs de errores y depuración
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+4. Archivos del sistema operativo
+
+.DS_Store
+Thumbs.db
+
+5. Configuraciones locales de editores de código (VS Code, IntelliJ, etc.)
+
+.vscode/
+.idea/
+*.suo
+.ntvs
+*.njsproj
+*.sln
+*.sw?
+
+6. Carpetas de cobertura de pruebas (si agregas testing después)
+
+coverage/
+.nyc_output/
