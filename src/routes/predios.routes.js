@@ -9,4 +9,7 @@ const prediosController = require("../controllers/predios.controller");
 // Cuando se hace un POST a /api/predios, se ejecuta la función del controlador
 router.post("/", prediosController.guardarPredio);
 
+// Obtener todos los predios para mostrarlos en el frontend
+router.get("/", prediosController.obtenerPredios);
+
 module.exports = router;

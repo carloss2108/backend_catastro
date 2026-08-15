@@ -74,6 +74,30 @@ const guardarPredio = async (req, res) => {
   }
 };
 
+// ========================================================================
+// LÓGICA DE NEGOCIO: OBTENER PREDIOS
+// ========================================================================
+const obtenerPredios = async (req, res) => {
+  try {
+    // Por ahora traemos los últimos 100 registros para no saturar
+    const sql = `
+      SELECT * FROM predios 
+      ORDER BY fecha_extraccion DESC 
+      LIMIT 100
+    `;
+    const [rows] = await db.execute(sql);
+    
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error al obtener predios:", error);
+    res.status(500).json({
+      error: "Error interno del servidor al obtener los datos.",
+      detalles: error.message,
+    });
+  }
+};
+
 module.exports = {
   guardarPredio,
+  obtenerPredios
 };
