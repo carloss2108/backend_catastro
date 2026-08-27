@@ -1,4 +1,4 @@
-﻿-- ========================================================================
+-- ========================================================================
 -- SCRIPT DE CREACIÓN DE BASE DE DATOS PARA CATASTRO CULIACÁN (MariaDB 11.4.12)
 -- ========================================================================
 
@@ -32,6 +32,18 @@ INSERT IGNORE INTO tipo_predios (nombre) VALUES
 INSERT IGNORE INTO transacciones (nombre) VALUES 
 ('Venta'), ('Renta'), ('Traspaso'), ('Remate Bancario');
 
+-- Catálogo de Asentamientos (Colonias)
+CREATE TABLE IF NOT EXISTS asentamientos (
+    id_estado INT NOT NULL,
+    id_municipio VARCHAR(10) NOT NULL,
+    id_asenta_cpcons VARCHAR(10) NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    codigo_postal VARCHAR(10) NOT NULL,
+    id_ciudad VARCHAR(10) DEFAULT NULL,
+    id_tipo_asentamiento INT NOT NULL,
+    PRIMARY KEY (id_estado, id_municipio, id_asenta_cpcons)
+) ENGINE=InnoDB;
+
 -- ========================================================================
 -- TABLA PRINCIPAL DE PREDIOS
 -- ========================================================================
@@ -50,6 +62,9 @@ CREATE TABLE IF NOT EXISTS predios (
     poblacion VARCHAR(150),
     
     -- Dirección Estandarizada (Captura manual/Frontend)
+    id_estado INT COMMENT 'Relación compuesta con asentamientos',
+    id_municipio VARCHAR(10) COMMENT 'Relación compuesta con asentamientos',
+    id_asenta_cpcons VARCHAR(10) COMMENT 'Relación compuesta con asentamientos (Colonia)',
     calle VARCHAR(255) COMMENT 'Nombre oficial de la calle limpia',
     numero VARCHAR(50) COMMENT 'Número exterior e interior (Ej. 123-B, S/N)',
     orientacion VARCHAR(50) COMMENT 'Nte, Sur, Ote, Pte',
@@ -75,7 +90,9 @@ CREATE TABLE IF NOT EXISTS predios (
         
     -- Índices para búsquedas y filtros ultrarrápidos
     INDEX idx_propietario (propietario),
-    INDEX idx_colonia (colonia)
+    INDEX idx_colonia (colonia),
+    
+    CONSTRAINT fk_predio_asentamiento FOREIGN KEY (id_estado, id_municipio, id_asenta_cpcons) REFERENCES asentamientos(id_estado, id_municipio, id_asenta_cpcons) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ========================================================================
@@ -133,6 +150,9 @@ CREATE TABLE IF NOT EXISTS publicaciones (
     
     -- Dirección Estandarizada
     -- En el frontend al añadir una publicacion para un predio, el backend hará una consulta a la tabla predios, e inyectará automáticamente los datos en el formulario de la pantalla para no tener que escribirlos de cero
+    id_estado INT COMMENT 'Relación compuesta con asentamientos',
+    id_municipio VARCHAR(10) COMMENT 'Relación compuesta con asentamientos',
+    id_asenta_cpcons VARCHAR(10) COMMENT 'Relación compuesta con asentamientos (Colonia)',
     calle VARCHAR(255) COMMENT 'Calle según la publicación',
     numero VARCHAR(50) COMMENT 'Número exterior/interior según publicación',
     orientacion VARCHAR(50) COMMENT 'Orientación comercial',
@@ -144,6 +164,7 @@ CREATE TABLE IF NOT EXISTS publicaciones (
     banos_completos TINYINT DEFAULT 0 COMMENT 'Baños completos (Según publicación)',
     banos_medios TINYINT DEFAULT 0 COMMENT 'Baños de visita (Según publicación)',
     cochera TINYINT DEFAULT 0 COMMENT 'Capacidad de vehículos (Según publicación)',
+    descripcion TEXT COMMENT 'Descripción comercial o texto de la publicación',
     
     -- Superficies
     -- Igual que la seccion de campos Dirección Estandarizada; se consultaran de tabla predios
@@ -170,6 +191,7 @@ CREATE TABLE IF NOT EXISTS publicaciones (
     CONSTRAINT fk_publicacion_contacto FOREIGN KEY (contacto_id) REFERENCES contactos(id) ON DELETE CASCADE,
     CONSTRAINT fk_publicacion_tipo_predio FOREIGN KEY (id_tipo_predio) REFERENCES tipo_predios(id) ON DELETE SET NULL,
     CONSTRAINT fk_publicacion_transaccion FOREIGN KEY (id_transaccion) REFERENCES transacciones(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_publicacion_asentamiento FOREIGN KEY (id_estado, id_municipio, id_asenta_cpcons) REFERENCES asentamientos(id_estado, id_municipio, id_asenta_cpcons) ON DELETE SET NULL,
     
     -- Índice compuesto crucial para encontrar qué se vende hoy
     INDEX idx_publicacion_estatus (predio_id, estatus)
