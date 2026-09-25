@@ -45,6 +45,17 @@ CREATE TABLE IF NOT EXISTS asentamientos (
 ) ENGINE=InnoDB;
 
 -- ========================================================================
+-- TABLA DE PROPIETARIOS
+-- ========================================================================
+CREATE TABLE IF NOT EXISTS propietarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL COMMENT 'Nombre completo o razón social del propietario',
+    domicilio VARCHAR(255) COMMENT 'Domicilio personal o fiscal del propietario',
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_propietario_nombre (nombre)
+) ENGINE=InnoDB;
+
+-- ========================================================================
 -- TABLA PRINCIPAL DE PREDIOS
 -- ========================================================================
 CREATE TABLE IF NOT EXISTS predios (
@@ -54,9 +65,9 @@ CREATE TABLE IF NOT EXISTS predios (
     -- Almacenado en ASCII para máxima eficiencia en la base de datos
     clave_catastral CHAR(18) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL UNIQUE COMMENT 'Solo números, ej: 007000022347014001',
     
-    -- Datos de Identificación y Ubicación (Crudos de Catastro extraidos por la extension de Chrome)
-    propietario VARCHAR(255),
-    domicilio VARCHAR(255),
+    -- Identificación del propietario (FK a tabla propietarios)
+    propietario_id INT DEFAULT NULL COMMENT 'Referencia al propietario registrado',
+    domicilio VARCHAR(255) COMMENT 'Domicilio del predio (extraído de catastro)',
     ubicacion TEXT,
     colonia VARCHAR(150),
     poblacion VARCHAR(150),
@@ -89,10 +100,11 @@ CREATE TABLE IF NOT EXISTS predios (
     fecha_extraccion DATETIME DEFAULT CURRENT_TIMESTAMP,
         
     -- Índices para búsquedas y filtros ultrarrápidos
-    INDEX idx_propietario (propietario),
+    INDEX idx_propietario_id (propietario_id),
     INDEX idx_colonia (colonia),
     
-    CONSTRAINT fk_predio_asentamiento FOREIGN KEY (id_estado, id_municipio, id_asenta_cpcons) REFERENCES asentamientos(id_estado, id_municipio, id_asenta_cpcons) ON DELETE SET NULL
+    CONSTRAINT fk_predio_asentamiento FOREIGN KEY (id_estado, id_municipio, id_asenta_cpcons) REFERENCES asentamientos(id_estado, id_municipio, id_asenta_cpcons) ON DELETE SET NULL,
+    CONSTRAINT fk_predio_propietario FOREIGN KEY (propietario_id) REFERENCES propietarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ========================================================================

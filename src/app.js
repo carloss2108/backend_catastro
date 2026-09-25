@@ -4,6 +4,7 @@ const prediosRoutes = require("./routes/predios.routes");
 const contactosRoutes = require("./routes/contactos.routes");
 const publicacionesRoutes = require("./routes/publicaciones.routes");
 const fotosRoutes = require("./routes/fotos.routes");
+const propietariosRoutes = require("./routes/propietarios.routes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json()); // Permite recibir y parsear JSON
 app.use("/api/predios", prediosRoutes);
 app.use("/api/contactos", contactosRoutes);
 app.use("/api/publicaciones", publicacionesRoutes);
+app.use("/api/propietarios", propietariosRoutes);
 // Rutas de fotos (sub-recursos de publicaciones + ruta independiente DELETE /api/fotos/:id)
 app.use("/api/publicaciones", fotosRoutes);
 app.use("/api", fotosRoutes);
